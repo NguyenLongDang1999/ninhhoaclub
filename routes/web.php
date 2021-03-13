@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Backend
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+
+// Frontend
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,5 +26,18 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
+
+// Backend
+Route::prefix('administrator')->group(function () {
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.index');
+
+    // Category
+    Route::prefix('category')->group(function () {
+        Route::get('/', [CategoryController::class, 'index'])->name('admin.category.index');
+        Route::get('create', [CategoryController::class, 'create'])->name('admin.category.create');
+        Route::get('recycle', [CategoryController::class, 'recycle'])->name('admin.category.recycle');
+    });
+});
 
 require __DIR__.'/auth.php';
