@@ -15,14 +15,13 @@ class CreateCategoryTable extends Migration
     {
         Schema::create('category', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('slug');
-            $table->string('description');
-            $table->integer('parent_id');
-            $table->integer('status');
-            $table->integer('orders');
-            $table->string('meta_keyword');
-            $table->string('meta_descripton');
+            $table->string('name')->nullable();
+            $table->string('slug')->nullable();
+            $table->string('description')->nullable();
+            $table->integer('parent_id')->nullable();
+            $table->integer('status')->nullable()->default(1);
+            $table->string('meta_keyword')->nullable();
+            $table->string('meta_description')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

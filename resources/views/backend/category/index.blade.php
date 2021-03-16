@@ -12,429 +12,206 @@
         href="{{ asset('app-assets/vendors/css/tables/datatable/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" type="text/css"
         href="{{ asset('app-assets/vendors/css/tables/datatable/responsive.bootstrap4.min.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ asset('app-assets/vendors/css/tables/datatable/dataTables.checkboxes.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/vendors/css/extensions/sweetalert2.min.css') }}">
 @endsection
 {{-- end vendorCSS --}}
-
-{{-- pageCSS --}}
-@section('pageCSS')
-    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice.min.css') }}">
-@endsection
-{{-- end pageCSS --}}
 
 {{-- vendorJS --}}
 @section('vendorJS')
     <script src="{{ asset('app-assets/vendors/js/tables/datatable/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('app-assets/vendors/js/tables/datatable/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('app-assets/vendors/js/tables/datatable/datatables.checkboxes.min.js') }}"></script>
     <script src="{{ asset('app-assets/vendors/js/tables/datatable/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/extensions/sweetalert2.all.min.js') }}"></script>
 @endsection
 {{-- end vendorJS --}}
 
 {{-- pageJS --}}
 @section('pageJS')
+    <script src="{{ asset('app-assets/custom.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            if ($(".invoice-data-table").length) {
-                var dataListView = $(".invoice-data-table").DataTable({
-                    columnDefs: [{
-                            targets: 0,
-                            className: "control"
-                        },
-                        {
-                            orderable: true,
-                            targets: 1,
-                            checkboxes: {
-                                selectRow: true
-                            }
-                        },
-                        {
-                            targets: [0, 1],
-                            orderable: false
-                        },
-                    ],
-                    order: [2, 'asc'],
-                    dom: '<"top d-flex flex-wrap"<"action-filters flex-grow-1"f><"actions action-btns d-flex align-items-center">><"clear">rt<"bottom"p>',
-                    language: {
-                        search: "",
-                        searchPlaceholder: "Search Invoice"
-                    },
-                    select: {
-                        style: "multi",
-                        selector: "td:first-child",
-                        items: "row"
-                    },
-                    responsive: {
-                        details: {
-                            type: "column",
-                            target: 0
-                        }
-                    }
-                });
+        var url_delete_item = "{{ route('admin.category.multiDestroy') }}";
+        var click_mode = 0;
+        var oTable = $('#tbList').dataTable({
+            "bServerSide": true,
+            "bProcessing": true,
+            "sDom": ' r <"row" <"col-md-12"l> <"col-md-6 datatable-info-custom"i> <"col-md-6 text-right"p> <"col-md-12"t> <"col-md-6 datatable-info-custom"i> <"col-md-6 text-right"p> >',
+            "sPaginationType": "full_numbers",
+            "sAjaxSource": "{{ route('admin.category.getList') }}",
+            "bDeferRender": true,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bDestroy": true,
+            "iDisplayLength": 20,
+            "bSort": true,
+            "aaSorting": [
+                [5, "desc"]
+            ],
+            "aoColumns": [{
+                    "sClass": "center",
+                    "bSortable": false
+                },
+                {
+                    "sClass": "center",
+                    "bSortable": false
+                },
+                {
+                    "sClass": "center",
+                },
+                {
+                    "sClass": "center",
+                    "bSortable": false
+                },
+                {
+                    "sClass": "center",
+                    "bSortable": false
+                },
+                {
+                    "sClass": "center"
+                },
+                {
+                    "sClass": "center"
+                },
+                {
+                    "sClass": "center",
+                    "bSortable": false
+                }
+            ],
+            "fnServerParams": function(aoData) {
+                if (click_mode == 0) {
+                    aoData.push({
+                        "name": "search[name]",
+                        "value": $('#frmSearch input[name="search[name]"]').val()
+                    });
+                    aoData.push({
+                        "name": "search[status]",
+                        "value": $('#frmSearch select[name="search[status]"]').val()
+                    });
+                }
             }
-        })
+        });
+
+        $(document).ready(function() {
+            $('#btnFrmSearch').on('click', function() {
+                click_mode = 0;
+                oTable.fnDraw();
+            });
+
+            $('#btnReset').on('click', function() {
+                click_mode = 1;
+                oTable.fnDraw();
+            });
+        });
 
     </script>
-    <script src="{{ asset('app-assets/js/scripts/pages/app-invoice.js') }}"></script>
 @endsection
 {{-- end pageJS --}}
 
+{{-- content-header --}}
+@section('content-header')
+    <div class="content-header-left col-12 mb-2 mt-1">
+        <div class="breadcrumbs-top">
+            <h5 class="content-header-title float-left pr-1 mb-0 text-capitalize">Danh sách</h5>
+            <div class="breadcrumb-wrapper d-none d-sm-block">
+                <ol class="breadcrumb p-0 mb-0 pl-1">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard.index') }}"><i
+                                class="bx bx-home-alt"></i></a>
+                    </li>
+                    <li class="breadcrumb-item"><a class="text-capitalize"
+                            href="{{ route('admin.category.index') }}">Danh
+                            mục</a>
+                    </li>
+                    <li class="breadcrumb-item text-capitalize active">Danh sách
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+@endsection
+{{-- end content-header --}}
+
 {{-- content-body --}}
 @section('content-body')
-    <section class="invoice-list-wrapper">
-        <!-- create invoice button-->
-        <div class="invoice-create-btn mb-1">
-            <a href="{{ route('admin.category.create') }}" class="btn btn-primary glow invoice-create text-capitalize"
-                role="button" aria-pressed="true">Thêm mới</a>
-        </div>
-        <!-- Options and filter dropdown button-->
-        <div class="action-dropdown-btn d-none">
-            <div class="dropdown invoice-filter-action">
-                <button class="btn border dropdown-toggle mr-1" type="button" id="invoice-filter-btn" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-                    Filter Invoice
-                </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="invoice-filter-btn">
-                    <a class="dropdown-item" href="javascript:;">Downloaded</a>
-                    <a class="dropdown-item" href="javascript:;">Sent</a>
-                    <a class="dropdown-item" href="javascript:;">Partial Payment</a>
-                    <a class="dropdown-item" href="javascript:;">Paid</a>
+    <section id="basic-datatable">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="mb-1">
+                    <a href="{{ route('admin.category.create') }}" class="btn btn-primary glow invoice-create"
+                        role="button" aria-pressed="true">Thêm Mới</a>
+
+                    <a href="{{ route('admin.category.recycle') }}" class="btn btn-secondary glow invoice-create"
+                        role="button" aria-pressed="true">Thùng rác</a>
+
+                    <button id="btnDeleteAll" class="btn btn-danger confirm-text" type="button">
+                        Xóa Hết
+                    </button>
+                </div>
+
+                <form onsubmit="return false;" method="GET" id="frmSearch">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group">
+                                        <label class="form-label">Tiêu đề danh mục</label>
+                                        <input type="text" class="form-control" name="search[name]" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group">
+                                        <label class="form-label">Status</label>
+                                        <select name="search[status]" class="custom-select">
+                                            <option value="">Select Value</option>
+                                            <option value="1">On</option>
+                                            <option value="0">Off</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <button class="btn btn-sm btn-primary" type="submit" id="btnFrmSearch">
+                                        <i class="bx bx-search"></i>
+                                        Search
+                                    </button>
+
+                                    <button class="btn btn-sm btn-warning" type="reset" id="btnReset">
+                                        <i class="bx bx-reset"></i>
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="card">
+                    <div class="card-body card-dashboard">
+
+                        <div class="table-responsive">
+                            <form id="frmTbList" method="post">
+                                @csrf
+                                <table class="table category-table dt-responsive nowrap" id="tbList" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th><input type="checkbox" id="chkAll"></th>
+                                            <th>Tiêu đề danh mục</th>
+                                            <th>Danh mục cha</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Ngày sửa</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="dropdown invoice-options">
-                <button class="btn border dropdown-toggle mr-2" type="button" id="invoice-options-btn"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Options
-                </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="invoice-options-btn">
-                    <a class="dropdown-item" href="javascript:;">Delete</a>
-                    <a class="dropdown-item" href="javascript:;">Edit</a>
-                    <a class="dropdown-item" href="javascript:;">View</a>
-                    <a class="dropdown-item" href="javascript:;">Send</a>
-                </div>
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table invoice-data-table dt-responsive nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>
-                            <span class="align-middle">Invoice#</span>
-                        </th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Customer</th>
-                        <th>Tags</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00956</a>
-                        </td>
-                        <td><span class="invoice-amount">$459.30</span></td>
-                        <td><small class="text-muted">12-08-19</small></td>
-                        <td><span class="invoice-customer">Pixinvent PVT. LTD</span></td>
-                        <td>
-                            <span class="bullet bullet-success bullet-sm"></span>
-                            <small class="text-muted">Technology</small>
-                        </td>
-                        <td><span class="badge badge-light-danger badge-pill">UNPAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00349</a>
-                        </td>
-                        <td><span class="invoice-amount">$125.00</span></td>
-                        <td><small class="text-muted">08-08-19</small></td>
-                        <td><span class="invoice-customer">Volkswagen</span></td>
-                        <td>
-                            <span class="bullet bullet-primary bullet-sm"></span>
-                            <small class="text-muted">Car</small>
-                        </td>
-                        <td><span class="badge badge-light-success badge-pill">PAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00853</a>
-                        </td>
-                        <td><span class="invoice-amount">$10,503</span></td>
-                        <td><small class="text-muted">02-08-19</small></td>
-                        <td><span class="invoice-customer">Chevron Corporation</span></td>
-                        <td>
-                            <span class="bullet bullet-dark bullet-sm"></span>
-                            <small class="text-muted">Corporation</small>
-                        </td>
-                        <td><span class="badge badge-light-danger badge-pill">UNPAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00452</a>
-                        </td>
-                        <td><span class="invoice-amount">$90</span></td>
-                        <td><small class="text-muted">28-07-19</small></td>
-                        <td><span class="invoice-customer">Alphabet</span></td>
-                        <td>
-                            <span class="bullet bullet-info bullet-sm"></span>
-                            <small class="text-muted">Electronic</small>
-                        </td>
-                        <td><span class="badge badge-light-warning badge-pill">Partially Paid</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00123</a>
-                        </td>
-                        <td><span class="invoice-amount">$15,900</span></td>
-                        <td><small class="text-muted">23-07-19</small></td>
-                        <td><span class="invoice-customer">Toyota Motor</span></td>
-                        <td>
-                            <span class="bullet bullet-primary bullet-sm"></span>
-                            <small class="text-muted">Car</small>
-                        </td>
-                        <td><span class="badge badge-light-success badge-pill">PAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00853</a>
-                        </td>
-                        <td><span class="invoice-amount">$115.06</span></td>
-                        <td><small class="text-muted">24-06-19</small></td>
-                        <td><span class="invoice-customer">Samsung Electronics</span></td>
-                        <td>
-                            <span class="bullet bullet-info bullet-sm"></span>
-                            <small class="text-muted">Electronic</small>
-                        </td>
-                        <td><span class="badge badge-light-success badge-pill">PAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00153</a>
-                        </td>
-                        <td><span class="invoice-amount">$1,090</span></td>
-                        <td><small class="text-muted">23-05-19</small></td>
-                        <td><span class="invoice-customer">Pixinvent PVT. LTD</span></td>
-                        <td>
-                            <span class="bullet bullet-dark bullet-sm"></span>
-                            <small class="text-muted">Corporation</small>
-                        </td>
-                        <td><span class="badge badge-light-danger badge-pill">UNPAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00788</a>
-                        </td>
-                        <td><span class="invoice-amount">$555.50</span></td>
-                        <td><small class="text-muted">10-06-19</small></td>
-                        <td><span class="invoice-customer">ExxonMobil</span></td>
-                        <td>
-                            <span class="bullet bullet-warning bullet-sm"></span>
-                            <small class="text-muted">Mobile</small>
-                        </td>
-                        <td><span class="badge badge-light-danger badge-pill">UNPAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00326</a>
-                        </td>
-                        <td><span class="invoice-amount">$8,563</span></td>
-                        <td><small class="text-muted">06-01-19</small></td>
-                        <td><span class="invoice-customer">Wells Fargo</span></td>
-                        <td>
-                            <span class="bullet bullet-danger bullet-sm"></span>
-                            <small class="text-muted">Food</small>
-                        </td>
-                        <td><span class="badge badge-light-success badge-pill">PAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00759</a>
-                        </td>
-                        <td><span class="invoice-amount">$10,960.20</span></td>
-                        <td><small class="text-muted">22-05-19</small></td>
-                        <td><span class="invoice-customer">Ping An Insurance</span></td>
-                        <td>
-                            <span class="bullet bullet-dark bullet-sm"></span>
-                            <small class="text-muted">Corporation</small>
-                        </td>
-                        <td><span class="badge badge-light-warning badge-pill">Partially Paid</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00999</a>
-                        </td>
-                        <td><span class="invoice-amount">$886.90</span></td>
-                        <td><small class="text-muted">12-05-19</small></td>
-                        <td><span class="invoice-customer">Apple</span></td>
-                        <td>
-                            <span class="bullet bullet-success bullet-sm"></span>
-                            <small class="text-muted">Electronic</small>
-                        </td>
-                        <td><span class="badge badge-light-danger badge-pill">UNPAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <a href="app-invoice.html">INV-00223</a>
-                        </td>
-                        <td><span class="invoice-amount">$459.30</span></td>
-                        <td><small class="text-muted">28-04-19</small></td>
-                        <td><span class="invoice-customer">Communications</span></td>
-                        <td>
-                            <span class="bullet bullet-success bullet-sm"></span>
-                            <small class="text-muted">Technology</small>
-                        </td>
-                        <td><span class="badge badge-light-success badge-pill">PAID</span></td>
-                        <td>
-                            <div class="invoice-action">
-                                <a href="app-invoice.html" class="invoice-action-view mr-1">
-                                    <i class="bx bx-show-alt"></i>
-                                </a>
-                                <a href="app-invoice-edit.html" class="invoice-action-edit cursor-pointer">
-                                    <i class="bx bx-edit"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </section>
 @endsection

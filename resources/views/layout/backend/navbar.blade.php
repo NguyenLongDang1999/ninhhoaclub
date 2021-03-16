@@ -52,23 +52,20 @@
     <div class="main-menu-content">
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation"
             data-icon-style="lines">
-
-            @if (Request::segment(2) == 'category')
             <li class=" nav-item"><a href="#"><i class="menu-livicon" data-icon="notebook"></i><span
                         class="menu-title text-truncate text-capitalize" data-i18n="Invoice">Danh Mục</span></a>
                 <ul class="menu-content">
-                    <li class="{{ Request::segment(3) == '' ? 'active' : '' }}"><a class="d-flex align-items-center" href="{{ route('admin.category.index') }}"><i class="bx bx-right-arrow-alt"></i><span
-                                class="menu-item text-truncate text-capitalize" data-i18n="Invoice List">Danh sách</span></a>
+                    <li class="{{ getMenuActive(['*/category']) }}"><a class="d-flex align-items-center" href="{{ route('admin.category.index') }}"><i class="bx bx-right-arrow-alt"></i><span
+                                class="menu-item text-truncate text-capitalize">Danh sách</span></a>
                     </li>
-                    <li class="{{ Request::segment(3) == 'create' ? 'active' : '' }}"><a class="d-flex align-items-center" href="{{ route('admin.category.create') }}"><i class="bx bx-right-arrow-alt"></i><span
-                                class="menu-item text-truncate text-capitalize" data-i18n="Invoice">Thêm mới</span></a>
+                    <li class="{{ getMenuActive(['*/category/create']) }}"><a class="d-flex align-items-center" href="{{ route('admin.category.create') }}"><i class="bx bx-right-arrow-alt"></i><span
+                                class="menu-item text-truncate text-capitalize">Thêm mới</span></a>
                     </li>
-                    <li class="{{ Request::segment(3) == 'recycle' ? 'active' : '' }}"><a class="d-flex align-items-center" href="{{ route('admin.category.recycle') }}"><i class="bx bx-right-arrow-alt"></i><span
-                                class="menu-item text-truncate text-capitalize" data-i18n="Invoice Add">Thùng rác</span></a>
+                    {{-- <li class="{{ Request::segment(3) == 'recycle' ? 'active' : '' }}"><a class="d-flex align-items-center" href="{{ route('admin.category.recycle') }}"><i class="bx bx-right-arrow-alt"></i><span
+                                class="menu-item text-truncate text-capitalize">Thùng rác</span></a> --}}
                     </li>
                 </ul>
             </li>
-            @endif
         </ul>
     </div>
 </div>
